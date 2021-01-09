@@ -91,7 +91,7 @@ class Board:
                 raise BoardWrongShipException()
 
         for d in ship.dots:
-            self.field[d.x][d.y] = "∎" # "■"
+            self.field[d.x][d.y] = "■" # "■" "∎"
             self.busy.append(d)
 
         self.ships.append(ship)
@@ -118,13 +118,13 @@ class Board:
     def __str__(self):
         res = ""
         res += "  | 1 | 2 | 3 | 4 | 5 | 6 |"
-
+        rows_l = "абвгде"
         for i, row in enumerate(self.field):
-            res += f"\n{i+1} | " + " | ".join(row) + " |"
+            res += f"\n{rows_l[i]} | " + " | ".join(row) + " |"
 
         # замена для доски компьютера
         if self.hid:
-            res = res.replace("∎", "O")
+            res = res.replace("■", "O")
         return res
 
     def out(self, d):
@@ -181,30 +181,31 @@ class Player:
 
 class AI(Player):
     def ask(self):
+        # классические координаты
+        columns = {1: 'а', 2: 'б', 3: 'в', 4: 'г', 5: 'д', 6: 'е'}
         d = Dot(randint(0, 5), randint(0, 5))
-        print(f"и его ход: {d.x + 1} {d.y + 1}")
+        print(f"и его выстрел: {columns[d.x + 1]}{d.y + 1}")
         return d
 
 class User(Player):
     def ask(self):
         while True:
-            cords = input("Ваш ход: ").split()
+            cords = input("Ваш ход: ") #.split() - удобнее без пробелов
 
             if len(cords) != 2:
-                print("Введите координаты в формате а1: ")
+                print("Введите 2 координаты в формате [а1] (русская буква и число)...")
                 continue
 
             x, y = cords
+            # классические координаты
+            columns = {'а': 1, 'б': 2, 'в': 3, 'г': 4, 'д': 5, 'е': 6}
 
-
-            if not (x.isdigit()) or not (y.isdigit()):
-                print("Введите числа! ") # Введите координаты в формате а1 (русская буква и число
+            if x not in columns or not (y.isdigit()): # if not (x.isdigit()) or not (y.isdigit()):
+                print("Введите 2 координаты в формате [а1] (русская буква и число)...") #
                 continue
 
-            x, y = int(x), int(y)
-
-            return Dot(x-1, y-1)
-
+            x, y = int(columns[x]), int(y)
+            return Dot(x - 1, y - 1)
 
 
 class Game:
@@ -245,29 +246,26 @@ class Game:
         return board
 
     def greet(self):
-        print("*" * 50)
+        print("*" * 60)
         print("  Игра МОРСКОЙ БОЙ")
-        print("*" * 50)
-        print("-------------------")
-        print(" формат ввода: x y ")
-        print(" x - номер строки  ")
-        print(" y - номер столбца ")
-
+        print("*" * 60)
+        print(" формат ввода: а1 (русская буква и число без пробелов)")
+        print(" ")
     def loop(self):
         num = 0
         while True:
-            print("-" * 20)
+            print("+" * 35)
             print("Доска человека:")
             print(self.us.board)
             print("-" * 20)
             print("Доска компьютера:")
             print(self.ai.board)
             if num % 2 == 0:
-                print("+" * 40)
+                print("+" * 35)
                 print("Ходит человек...")
                 repeat = self.us.move()
             else:
-                print("+" * 40)
+                print("+" * 35)
                 print("Ходит компьютер...")
                 repeat = self.ai.move()
             if repeat:
@@ -275,12 +273,12 @@ class Game:
 
             if self.ai.board.count == 7:
                 print("-" * 20)
-                print("Человек выиграл!")
+                print("Выиграл Человек!")
                 break
 
             if self.us.board.count == 7:
                 print("-" * 20)
-                print("Компьютер выиграл!")
+                print("Выиграл компьютер!")
                 break
             num += 1
 
